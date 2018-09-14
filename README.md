@@ -46,3 +46,9 @@ fmt.Println(auth)
 f.Delete("version")
 f.Delete("draft")
 ```
+
+## Notes
+
+Billy does not handle directories symmetrically in the os and in memory file
+systems. You can open an OS directory but you cannot open an memfs directory. As
+a result we will not open the directory to add metadata.
