@@ -30,19 +30,15 @@ func main() {
 	fmt.Println("\n=== Directory creation ===")
 	for i, fs := range filesystems {
 		fmt.Println("  Using fs ", i)
-		d, err := OpenDirectory(fs)
-		if err != nil {
-			panic(err) // fails for memfs: cannot open directory: \billytests
-		}
-		s, _ := fs.Stat(d.Name())
-		if err != nil || !s.IsDir() {
+		// open fails for memfs only: cannot open directory: \billytests
+		// fs.Stat("dirname") works nicely for both
+		// what happens when you stat a non-existing file or dir?
+		dstat, err := StatDirectory(fs)
+		if err != nil || !dstat.IsDir() {
 			panic(err)
 		}
 
-		fmt.Printf("  Created dir `%s` in `%s`.\n", d.Name(), fs.Root())
-		if err := d.Close(); err != nil {
-			panic(err)
-		}
+		fmt.Printf("  Created dir in `%s`.\n", fs.Root())
 	}
 }
 
@@ -68,18 +64,18 @@ func CreateWrite(fs billy.Filesystem) (billy.File, error) {
 	return f, nil
 }
 
-// OpenDirectory Test the ability to open a directory as a file
-func OpenDirectory(fs billy.Filesystem) (billy.File, error) {
+// StatDirectory Test the ability to open a directory as a file
+func StatDirectory(fs billy.Filesystem) (os.FileInfo, error) {
 	// Create a directory
 	err := fs.MkdirAll("billytests", 0777)
 	if err != nil {
 		return nil, err
 	}
 	// Open the directory
-	f, err := fs.Open("billytests/")
+	dstat, err := fs.Stat("billytests") // tried with trailing slash as well
 	if err != nil {
 		return nil, err
 	}
 
-	return f, nil
+	return dstat, nil
 }
