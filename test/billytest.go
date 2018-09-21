@@ -11,7 +11,7 @@ import (
 
 func main() {
 	// test both os and memory based filesystems
-	filesystems := []billy.Filesystem{osfs.New(os.TempDir()), memfs.New()}
+	filesystems := map[string]billy.Filesystem{"osfs": osfs.New(os.TempDir()), "mem": memfs.New()}
 
 	fmt.Println("\n=== File creation ===")
 	for i, fs := range filesystems {

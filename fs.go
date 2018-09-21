@@ -1,5 +1,7 @@
-// Metafile is a file system abstraction that adds persisted user-defined metadata
-// to file system objects.
+// Package metafile is a file system abstraction that associates user-defined
+// metadata with file system objects. This data is persisted in a side car file
+// on the file system.
+//
 package metafile
 
 import (
@@ -11,7 +13,7 @@ import (
 // Static errors
 var (
 	ErrBadBucket   = errors.New("bucket does not exist")
-	ErrNeedPointer = errors.New("attempt to get into a non-pointer")
+	ErrNeedPointer = errors.New("attempt to populate a non-pointer")
 	ErrDecoding    = errors.New("pointer incompatible with the stored value")
 
 	ErrReadOnly        = billy.ErrReadOnly
@@ -41,7 +43,7 @@ type Store interface {
 	//
 	// Returns ErrBadBucket if the storage bucket does not exist.
 	// Returns ErrDecoding if pointer is incompatible with the stored value.
-	Get(bucket, key string, pointer *interface{}) (ok bool, err error)
+	Get(bucket, key string, pointer interface{}) (ok bool, err error)
 
 	// Delete deletes a key from a storage bucket.
 	//

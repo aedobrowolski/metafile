@@ -22,7 +22,8 @@ collision.  These buckets are named by relative paths to the objects from the
 file system root. The paths are normalized following normal go conventions.
 
 The methods `Put`, `Get`,  and `Delete` are used to store, retrieve and delete
-the values associated with keys.
+the values associated with keys.  Values can be any go data type.  The `Get`
+client must supply a pointer to a variable that matches the stored data.
 
 Storage buckets are not created explicitly.  However they can be removed
 explicitly with the `Empty` method or implicitly when the associated object is
@@ -32,8 +33,9 @@ will not be copied when an object is copied.
 One caveat: if the file system is changed without the use of the metafile API,
 then the metadata will not reflect those changes.
 
-It is an error to try to access or remove a storage bucket for a file system
-object that does not exist.
+It is an error to try to access a storage bucket for a file system object that
+does not exist.  To check if a bucket can be accessed stat the corresponding
+file system object.
 
 ## Example
 
@@ -43,7 +45,7 @@ or opening an existing filesystem and adding some files to it.
 ```go
 // Create a file system
 games metafile.Filesystem
-games, _ = metafile.OSFS(os.TempDir()) // for in memory: metafile.MemFS()
+games, _ = metafile.New(os.TempDir()) // for in memory: metafile.MemNew()
 defer games.Close()
 
 // Add a subdirectory to the root of the file system
@@ -78,7 +80,7 @@ games.Close()
 Reopen the file system from the same root. The metadata is still there.
 
 ```go
-games, _ = metafile.OSFS(fsRoot)
+games, _ = metafile.New(fsRoot)
 defer games.Close()
 
 // Retrieve some metadata
@@ -93,8 +95,24 @@ Metafile wraps [go-billy](https://github.com/src-d/go-billy), an abstract file
 system that uses the same interfaces for files and directories as the go
 libraries. Metafile adds a persisted key-value store for storing metadata with
 every file system object. Adding metadata is done through the file system
-abstraction (see example). When persisted to disk the metadata storage is put in
+abstraction. When persisted to disk the metadata storage is put in
 a file at the root of the file system called "`.metadata`".
 
 The format of the metadata file is not defined and is subject to change, but it
 will remain backward compatible with all newer releases of Metafile.
+
+### Why Gob format
+
+Gob is an efficient persistance format native to go. It can encode and decode
+virtually any go data types. It is version tolerant, meaning that if there is a
+mismatch between the type used to encode and the one used to decode there is a
+chance that the decoding will partially succeed. This is a feature that we want.
+
+The problem with using Gob in this context is that a small encoded object, in
+isolation, includes both the type definition and the value encoded as bytes.
+Decoding needs to read the type before decoding the value.  Encoding the values
+independently is inefficient but the only way in which the values can be read in
+random order.
+
+While it may be possible to reuse the Encoder or Decoder, they will need to be
+reset before each value written or read.  Creating new ones is cleaner.
