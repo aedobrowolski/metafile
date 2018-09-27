@@ -1,6 +1,8 @@
 package metafile
 
 import (
+	"os"
+
 	billy "gopkg.in/src-d/go-billy.v4"
 	"gopkg.in/src-d/go-billy.v4/memfs"
 	"gopkg.in/src-d/go-billy.v4/osfs"
@@ -24,7 +26,14 @@ func New(baseDir string) Filesystem {
 // NewMem returns a new metafile filesystem based on an in-memory filesystem
 func NewMem() Filesystem {
 	f := memfs.New()
-	s := newStore("", nil) // TODO: add fs validation of path
+	s := newStore("", func(b string) bool {
+		stat, err := f.Stat(b)
+		if err != nil {
+			return false
+		}
+		mode := stat.Mode()
+		return mode == 0 || mode == os.ModeDir
+	})
 	return filesystem{f, s}
 }
 

@@ -1,19 +1,19 @@
-package metafile
+package gob
 
 import (
 	"bytes"
 	"encoding/gob"
 )
 
-// GobCodec implements a Codec using gob encoding.
-type GobCodec struct {
+// Codec implements a Codec using gob encoding.
+type Codec struct {
 }
 
-// Ensure that the GobCodec is a valid Codec
-var _ Codec = GobCodec{}
+// Ensure that the Codec is a valid Codec
+var _ Codec = Codec{}
 
 // Encode returns a byte slice encoding the value passed as an argument
-func (c GobCodec) Encode(value interface{}) ([]byte, error) {
+func (c Codec) Encode(value interface{}) ([]byte, error) {
 	buf := bytes.Buffer{}
 	enc := gob.NewEncoder(&buf)
 
@@ -25,7 +25,7 @@ func (c GobCodec) Encode(value interface{}) ([]byte, error) {
 }
 
 // Decode converts the byte slice to data that it stores in the provided pointer
-func (c GobCodec) Decode(data []byte, valuePtr interface{}) error {
+func (c Codec) Decode(data []byte, valuePtr interface{}) error {
 	buf := bytes.Buffer{}
 	dec := gob.NewDecoder(&buf)
 

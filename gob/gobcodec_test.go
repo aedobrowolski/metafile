@@ -1,4 +1,4 @@
-package metafile
+package gob
 
 import (
 	"bytes"
@@ -16,7 +16,7 @@ func must(err error) {
 
 func TestCodec(t *testing.T) {
 	// setup the test cases
-	var codec Codec = GobCodec{}
+	var codec Codec = Codec{}
 
 	var b bool
 	var i int
@@ -76,7 +76,7 @@ func Test(t *testing.T) {
 // * The persist code will read the db file at bucket/key to get a []byte value
 // * The gob code will decode the []byte value into a pointer
 
-func ExampleGobCodec_Encode() {
+func ExampleCodec_Encode() {
 	type P struct {
 		X, Y, Z int
 		Name    string

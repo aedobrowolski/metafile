@@ -1,6 +1,9 @@
 package metafile
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func Test_Get_Basic(t *testing.T) {
 	store := newStore("", nil)
@@ -128,5 +131,27 @@ func Test_Move(t *testing.T) {
 	}
 	if got, exp := len(store.meta[path2]), len(keys); got != exp {
 		t.Errorf("Put: wrong number of keys in path '%s' found (%d), expecting %d", path2, got, exp)
+	}
+}
+
+func Test_Put_valid(t *testing.T) {
+	path1 := Clean("X")
+
+	falseStore := newStore("", func(s string) bool { return false })
+	if err := falseStore.Put(path1, "key", 0); err == nil {
+		t.Error("Put: invalid path, expecting error but got nil.")
+	}
+
+	trueStore := newStore("", func(s string) bool { return true })
+	if err := trueStore.Put(path1, "key", 0); err != nil {
+		t.Errorf("Put: valid path, expecting no error but got %s.", err)
+	}
+
+	xStore := newStore("", func(s string) bool { return strings.HasPrefix(s, "x") })
+	if err := xStore.Put("xpath", "key", 0); err != nil {
+		t.Errorf("Put: valid x path, expecting no error but got %s.", err)
+	}
+	if err := xStore.Put("ypath", "key", 0); err == nil {
+		t.Errorf("Put: invalid y path, expecting error but got %s.", err)
 	}
 }

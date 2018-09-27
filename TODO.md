@@ -35,5 +35,5 @@ Move done issues to the top of this list.
 
 ## Obsolete
 
-* F07. Consider mmap to keep in sync https://medium.com/@arpith/adventures-with-mmap-463b33405223
+* F07. Consider mmap to keep in sync, see for example [adventures with mmap](https://medium.com/@arpith/adventures-with-mmap-463b33405223).
 * F08. Implement values as []byte arrays using Gob encoding.

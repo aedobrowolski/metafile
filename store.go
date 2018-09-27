@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
+
+	"github.com/aedobrowolski/metafile/gob"
 )
 
 // Implement the Store methods.  Store does not handle its own persistence.
@@ -31,7 +33,7 @@ type Codec interface {
 
 // newStore creates and initializes a metafile Store structure
 func newStore(base string, valid func(string) bool) store {
-	return store{base: base, dirty: false, valid: valid, meta: make(buckets), codec: &GobCodec{}}
+	return store{base: base, dirty: false, valid: valid, meta: make(buckets), codec: &gob.Codec{}}
 }
 
 func prepare(s store, path string) (map[string][]byte, error) {
